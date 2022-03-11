@@ -1,0 +1,77 @@
+{
+    "articles": 
+    {
+        "1": 
+        {
+            "by": "1st story",
+            "desendent": 123,
+            "id": 30634872, 
+            "kids": [30635556, 30635791],
+            "score": 264, 
+            "time": 1646960549, 
+            "title": "Earn-IT threatens encryption and therefore user freedom", 
+            "type": "story", 
+            "url": "https://www.fsf.org/blogs/community/earn-it-threatens-encryption-and-therefore-user-freedom"
+        },
+        "2": 
+        {
+            "by": "2nd story",
+            "desendent": 123,
+            "id": 30634872, 
+            "kids": [30635556, 30635791],
+            "score": 123, 
+            "time": 1646960549, 
+            "title": "Earn-IT threatens encryption and therefore user freedom", 
+            "type": "story", 
+            "url": "https://www.fsf.org/blogs/community/earn-it-threatens-encryption-and-therefore-user-freedom"
+        }, 
+        "3": 
+        {
+            "by": "3rd story",
+            "desendent": 123,
+            "id": 30634872, 
+            "kids": [30635556, 30635791],
+            "score": 264, 
+            "time": 1646960549, 
+            "title": "Earn-IT threatens encryption and therefore user freedom", 
+            "type": "story", 
+            "url": "https://www.fsf.org/blogs/community/earn-it-threatens-encryption-and-therefore-user-freedom"
+        },
+        "4": 
+        {
+            "by": "4th story",
+            "desendent": 123,
+            "id": 30634872, 
+            "kids": [30635556, 30635791],
+            "score": 0, 
+            "time": 1646960549, 
+            "title": "Earn-IT threatens encryption and therefore user freedom", 
+            "type": "story", 
+            "url": "https://www.fsf.org/blogs/community/earn-it-threatens-encryption-and-therefore-user-freedom"
+        }, 
+        "5": 
+        {
+            "by": "5th story",
+            "desendent": 123,
+            "id": 30634872, 
+            "kids": [30635556, 30635791],
+            "score": 50, 
+            "time": 1646960549, 
+            "title": "Earn-IT threatens encryption and therefore user freedom", 
+            "type": "story", 
+            "url": "https://www.fsf.org/blogs/community/earn-it-threatens-encryption-and-therefore-user-freedom"
+        },
+        "6": 
+        {
+            "by": "6th story",
+            "desendent": 123,
+            "id": 30634872, 
+            "kids": [30635556, 30635791],
+            "score": 9000, 
+            "time": 1646960549, 
+            "title": "Earn-IT threatens encryption and therefore user freedom", 
+            "type": "story", 
+            "url": "https://www.fsf.org/blogs/community/earn-it-threatens-encryption-and-therefore-user-freedom"
+        }
+    }
+}
