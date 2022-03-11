@@ -39,12 +39,12 @@ class HackerNewsReader():
     def filterStories(self, stories):
         # counter = 1
         logger.debug("start filtering")
-        # logger.debug(stories)
-        
-        url = os.environ.get("OPA_URL", "http://localhost:8181")
+        # stories = "{\"articles\":{\"1\":{\"by\":\"1st story\",\"desendent\":123,\"id\":30634872,\"kids\":[30635556,30635791],\"score\":264,\"time\":1646960549,\"title\":\"Earn-IT threatens encryption and therefore user freedom\"}}}"
+        stories = json.dumps(stories)
+
+        url = os.environ.get("OPA_URL", "http://localhost:8181/")
         logger.debug("OPA query: ")
         logger.debug(url)
         response = requests.post(url, data=stories)
-        logger.debug(response.json)
-        logger.debug(response._content)
+        logger.debug(response.reason)
         logger.debug("completed filtering")
