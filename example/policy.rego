@@ -1,5 +1,5 @@
 # import data.utils
-package hacker.popular
+package popular
 
 # popular articles is a filtering rule:
 # - As an input, the rule gets "results" which are the articles
