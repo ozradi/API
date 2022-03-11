@@ -8,7 +8,7 @@ if __name__ == "__main__":
     reader = HackerNewsReader()
     # all_stories = reader.getStories()
 
-    with open('mock_stories.json') as json_file:
+    with open('example/mock_stories.json') as json_file:
         all_stories = json.load(json_file)
 
     logger.debug("done getting stories, filtering")
