@@ -42,8 +42,7 @@ class HackerNewsReader():
         stories = json.dumps(stories)
 
         url = os.environ.get("OPA_URL", "http://localhost:8181/")
-        logger.debug("OPA query: ")
-        logger.debug(url)
+        logger.debug("OPA query: " + url)
         response = requests.post(url, data=stories)
         logger.debug(response.reason)
         logger.debug("completed filtering")
