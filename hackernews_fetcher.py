@@ -37,7 +37,6 @@ class HackerNewsReader():
         return dataFromStories
 
     def filterStories(self, stories):
-        # counter = 1
         logger.debug("start filtering")
         # stories = "{\"articles\":{\"1\":{\"by\":\"1st story\",\"desendent\":123,\"id\":30634872,\"kids\":[30635556,30635791],\"score\":264,\"time\":1646960549,\"title\":\"Earn-IT threatens encryption and therefore user freedom\"}}}"
         stories = json.dumps(stories)
