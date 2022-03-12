@@ -1,7 +1,6 @@
 import pip._vendor.requests 
 import json
 from loguru import logger
-import os
 import requests
 
 class HackerNewsReader():
@@ -36,13 +35,30 @@ class HackerNewsReader():
         # logger.debug(currentAsJSON)
         return dataFromStories
 
-    def filterStories(self, stories):
+    def filterStories(self, data, input, policy):
         logger.debug("start filtering")
-        # stories = "{\"articles\":{\"1\":{\"by\":\"1st story\",\"desendent\":123,\"id\":30634872,\"kids\":[30635556,30635791],\"score\":264,\"time\":1646960549,\"title\":\"Earn-IT threatens encryption and therefore user freedom\"}}}"
-        stories = json.dumps(stories)
 
-        url = os.environ.get("OPA_URL", "http://localhost:8181/")
-        logger.debug("OPA query: " + url)
-        response = requests.post(url, data=stories)
-        logger.debug(response.reason)
+        # queryDataUrl = "http://localhost:8181/v1/data/articles"
+        # urlForData = os.environ.get("OPA_URL", queryDataUrl)
+        # logger.debug("OPA query data URL: " + urlForData)        
+        # response = requests.put(urlForData, data=storiesAsJson)
+        # logger.debug(response)
+        # logger.debug(response.content)
+
+        storiesAsJson = json.dumps(input)
+
+        logger.debug("====inserting policy to OPA====")
+        response = requests.put("http://localhost:8181/v1/policies/example", policy, headers={'content-type':'text/plain'})
+
+        logger.debug("====inserting input data in data/system/main path====")
+        data = "{\"input\": " + storiesAsJson + "}"
+
+        logger.debug("====Using the GET API to apply the policy on the data====")
+        response = requests.post("http://localhost:8181/v1/data", data=data)
+        logger.debug(response)
+        filtered_articles = response.json()
+
         logger.debug("completed filtering")
+        logger.debug(filtered_articles)
+        # logger.debug(filtered_articles['example'])
+        return filtered_articles
