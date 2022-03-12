@@ -5,6 +5,8 @@ from loguru import logger
 from hackernews_fetcher import HackerNewsReader
 
 DEBUG = 1
+MAX_STORIES = 5
+JSON_PREFIX = "articles"
 
 if __name__ == "__main__":
     reader = HackerNewsReader()
@@ -14,16 +16,14 @@ if __name__ == "__main__":
         with open('example/mock_input.json') as json_file:
             all_stories = json.load(json_file)
     else:
-        all_stories = reader.getStories()
-        all_stories = "{\"articles\": " + json.dumps(all_stories) + "}"
+        all_stories = reader.getStories(MAX_STORIES)
+        all_stories = "{\"" + JSON_PREFIX + "\": " + json.dumps(all_stories) + "}"
 
-    logger.debug(all_stories)
-
-    logger.debug("done loading, now filtering")
+    logger.debug("Done loading, now filtering")
     filtered_stories = reader.filterStories(all_stories)
 
     logger.debug(filtered_stories)
 
     all_stories_as_json = json.loads(all_stories)
     for item in filtered_stories:
-        logger.debug(all_stories_as_json["articles"][item])
+        logger.debug(all_stories_as_json[JSON_PREFIX][item])
