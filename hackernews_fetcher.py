@@ -56,7 +56,6 @@ class HackerNewsReader():
         logger.debug("====Using the GET API to apply the policy on the data====")
         data = "{\"input\": " + storiesAsJson + "}"
         response = requests.post("http://localhost:8181/v1/data", data=data)
-        logger.debug(response)
         filtered_articles = response.json()
 
         logger.debug("Completed filtering")
