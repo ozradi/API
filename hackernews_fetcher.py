@@ -4,7 +4,7 @@ import json
 from loguru import logger
 import requests
 
-MAX_STORIES = 3
+MAX_STORIES = 5
 class HackerNewsReader():
 
     def getStories(self):
@@ -41,14 +41,10 @@ class HackerNewsReader():
                 break
         return dataFromStories
 
-    def filterStories(self, input, policy):
+    def filterStories(self, input):
         logger.debug("start filtering")
 
-        storiesAsJson = json.dumps(input)
-
-        logger.debug("====inserting policy to OPA====")
-        response = requests.put("http://localhost:8181/v1/policies/example", policy, headers={'content-type':'text/plain'})
-        logger.debug(response)
+        storiesAsJson = input
 
         logger.debug("====Using the GET API to apply the policy on the data====")
         data = "{\"input\": " + storiesAsJson + "}"
@@ -57,7 +53,4 @@ class HackerNewsReader():
         filtered_articles = response.json()
 
         logger.debug("completed filtering")
-        # logger.debug(filtered_articles)
         return filtered_articles["result"]["example"]["popular_articles"]
-        # logger.debug(filtered_articles["example"])
-        # return filtered_articles["example"]
