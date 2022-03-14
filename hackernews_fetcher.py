@@ -22,17 +22,18 @@ class HackerNewsReader():
         numOfStories = min(len(newstories), maxStories)
         logger.debug("Fetching " + str(numOfStories) + " sotries. Iterating...")
         counter = 1
-        for item in newstories: 
+        for item in newstories:
+            currentItemId = currentItemBy = currentItemScore = currentItemTitle = currentItemTime = currentItemType = currentItemURL = ""
             url = "https://hacker-news.firebaseio.com/v0/item/" + str(item) + ".json?print=pretty"
             current = pip._vendor.requests.get(url)
             currentAsJSON = json.loads(current.text)
-            currentItemId = currentAsJSON[HACKERNEWS_ID]
-            currentItemBy = currentAsJSON[HACKERNEWS_BY]
-            currentItemScore = currentAsJSON[HACKERNEWS_SCORE]
-            currentItemTitle = currentAsJSON[HACKERNEWS_TITLE]
-            currentItemTime = currentAsJSON[HACKERNEWS_TIME]
-            currentItemType = currentAsJSON[HACKERNEWS_TYPE]
-            currentItemURL = currentAsJSON[HACKERNEWS_URL]
+            currentItemId = currentAsJSON[HACKERNEWS_ID] if HACKERNEWS_ID in currentAsJSON else ""
+            currentItemBy = currentAsJSON[HACKERNEWS_BY] if HACKERNEWS_BY in currentAsJSON else ""
+            currentItemScore = currentAsJSON[HACKERNEWS_SCORE] if HACKERNEWS_SCORE in currentAsJSON else ""
+            currentItemTitle = currentAsJSON[HACKERNEWS_TITLE] if HACKERNEWS_TITLE in currentAsJSON else ""
+            currentItemTime = currentAsJSON[HACKERNEWS_TIME] if HACKERNEWS_TIME in currentAsJSON else ""
+            currentItemType = currentAsJSON[HACKERNEWS_TYPE] if HACKERNEWS_TYPE in currentAsJSON else ""
+            currentItemURL = currentAsJSON[HACKERNEWS_URL] if HACKERNEWS_URL in currentAsJSON else ""
 
             dataFromStories[counter] = {
                 HACKERNEWS_ID: currentItemId, 
