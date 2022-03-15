@@ -1,0 +1,37 @@
+{
+    "biology": [
+        "crispr",
+        "covid",
+        "covid-19",
+        "coronavirus",
+        "biotechnology"
+    ],
+    "crypto": [
+        "bitcoin",
+        "nft",
+        "ethereum",
+        "dogecoin",
+        "coinbase",
+        "tether",
+        "bnb",
+        "xrp",
+        "luna",
+        "terra",
+        "cardano"
+    ],
+    "space": [
+        "staelite",
+        "spacex",
+        "blue origin",
+        "nasa",
+        "darpa"
+    ],
+    "tfaang": [
+        "facebook",
+        "apple",
+        "amazon",
+        "google",
+        "netflix",
+        "twitter"
+    ]
+}
