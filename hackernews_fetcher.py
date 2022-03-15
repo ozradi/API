@@ -1,8 +1,11 @@
 from ast import Constant
+from unittest import case
+from attr import asdict
 import pip._vendor.requests 
 import json
 from loguru import logger
 import requests
+import topics
 
 HACKER_NEWS_URL = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"
 HACKERNEWS_ID = "id"
@@ -12,6 +15,7 @@ HACKERNEWS_TITLE = "title"
 HACKERNEWS_TIME = "time"
 HACKERNEWS_TYPE = "type"
 HACKERNEWS_URL = "url"
+
 class HackerNewsReader():
     
     def getStories(self, maxStories):
@@ -49,8 +53,8 @@ class HackerNewsReader():
                 break
         return dataFromStories
 
-    def filterStories(self, input):
-        logger.debug("Start filtering")
+    def filterStoriesPopularity(self, input):
+        logger.debug("Start filtering based on popularity")
 
         storiesAsJson = input
 
@@ -61,3 +65,36 @@ class HackerNewsReader():
 
         logger.debug("Completed filtering")
         return filtered_articles["result"]["example"]["popular_articles"]
+
+    def filterStoriesTopics(self, input, topic):
+        logger.debug("Start filtering based on topics: " + topic)
+
+        if topic == 1:
+            with open('example/data.json') as json_file:
+                data = json.load(json_file)["biology"]
+        elif topic == 2:
+            with open('example/data.json') as json_file:
+                data = json.load(json_file)["crypto"]
+        elif topic == 3:
+            with open('example/data.json') as json_file:
+                data = json.load(json_file)["space"]
+        elif topic == 4:
+            with open('example/data.json') as json_file:
+                data = json.load(json_file)["tfaang"]
+        else: 
+            data = ""
+            
+        storiesAsJson = input
+
+        logger.debug("====Using the GET API to apply the policy on the data====")
+        input = "{\"input\": " + storiesAsJson + "}"
+        if data is not "":
+            data_for_opa = {input, data} 
+        else: 
+            data_for_opa = input
+        response = requests.post("http://localhost:8181/v1/data", data_for_opa)
+        filtered_articles = response.json()
+
+        logger.debug("Completed filtering")
+        logger.debug(filtered_articles["result"]["example"])
+        return filtered_articles["result"]["example"]["relevant_to_" + topic]
