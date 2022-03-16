@@ -1,5 +1,3 @@
-from ast import Constant
-from unittest import case
 from attr import asdict
 import pip._vendor.requests 
 import json
@@ -16,7 +14,7 @@ HACKERNEWS_TITLE = "title"
 HACKERNEWS_TIME = "time"
 HACKERNEWS_TYPE = "type"
 HACKERNEWS_URL = "url"
-JSON_PREFIX = "articles"
+ARTICLES_PREFIX = "articles"
 
 class HackerNewsReader():
     
@@ -45,28 +43,43 @@ class HackerNewsReader():
             counter += 1
             if counter-1 == numOfStories:
                 break
+        logger.debug("ended getting articles")
         return articles
 
-    def filterArticlesPopularity(self, input):
-        logger.debug("Start filtering based on popularity")
-
-        # wrapping stories with json prefix and converting the return value to json
-        articlesAsJson = "{\"" + JSON_PREFIX + "\": {"
+    def queryOPA(self, input, data):
+        logger.debug("====Using the GET API to apply the policy on the data====")
+        
+        # wrapping stories with json prefix
+        inputAsJSON = "{\"input\": {\"" + ARTICLES_PREFIX + "\": {"
         counter = 1
+        # converting the input to JSON, OPA's supported format
         for item in input:
             itemAsJson = ArticleEncoder().encode(item)
             if counter < len(input):
                 itemAsJson += ","
-            articlesAsJson += "\"" + str(counter) + "\":" + itemAsJson
+            inputAsJSON += "\"" + str(counter) + "\":" + itemAsJson
             counter += 1
-        articlesAsJson += "}}"
+        
+        inputAsJSON += "}}"
+        if(data != ""):
+            for item in data:
+                logger.debug(item + "\":" + json.dumps(data[item]))
+                inputAsJSON += ',\"' + item + "\":" + json.dumps(data[item])
+        inputAsJSON += "}"
+        logger.debug(inputAsJSON)
+        response = requests.post("http://localhost:8181/v1/data", inputAsJSON)
+        if(response.status_code == 200):
+            logger.debug("completed" + str(response.json()))
+            return response.json()
+        else:
+            logger.debug("error querying opa!")
+            return ""
 
-        logger.debug("====Using the GET API to apply the policy on the data====")
-        data = "{\"input\": " + articlesAsJson + "}"
-        # logger.debug("This is the data sent to opa: " + data)
-        response = requests.post("http://localhost:8181/v1/data", data=data)
-        filtered_articles = response.json()
+    def filterArticlesPopularity(self, input):
+        logger.debug("Start filtering based on popularity")
 
+        filtered_articles = self.queryOPA(input, "")
+        
         # logger.debug("Completed filtering with " + str(filtered_articles))
         logger.debug("Completed filtering")
         return filtered_articles["result"]["example"]["popular_articles"]
@@ -74,31 +87,10 @@ class HackerNewsReader():
     def filterArticlesTopics(self, input, topic):
         logger.debug("Start filtering based on topics: " + topic)
 
-        if topic == 1:
-            with open('example/data.json') as json_file:
-                data = json.load(json_file)["biology"]
-        elif topic == 2:
-            with open('example/data.json') as json_file:
-                data = json.load(json_file)["crypto"]
-        elif topic == 3:
-            with open('example/data.json') as json_file:
-                data = json.load(json_file)["space"]
-        elif topic == 4:
-            with open('example/data.json') as json_file:
-                data = json.load(json_file)["tfaang"]
-        else: 
-            data = ""
-            
-        storiesAsJson = input
+        with open('example/data.json') as json_file:
+            data = json.load(json_file)
 
-        logger.debug("====Using the GET API to apply the policy on the data====")
-        input = "{\"input\": " + storiesAsJson + "}"
-        if data != "":
-            data_for_opa = {input, data} 
-        else: 
-            data_for_opa = input
-        response = requests.post("http://localhost:8181/v1/data", data_for_opa)
-        filtered_articles = response.json()
+        filtered_articles = self.queryOPA(input, data)
 
         logger.debug("Completed filtering")
         logger.debug(filtered_articles["result"]["example"])

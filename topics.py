@@ -6,3 +6,6 @@ class topics(Enum):
     CRYPTO = 2
     SAPCE = 3
     TFAANG = 4
+
+    def __str__(self):
+        return str(self.value)
