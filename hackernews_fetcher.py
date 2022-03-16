@@ -5,6 +5,7 @@ import pip._vendor.requests
 import json
 from loguru import logger
 import requests
+from article import Article, ArticleEncoder
 import topics
 
 HACKER_NEWS_URL = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"
@@ -15,16 +16,17 @@ HACKERNEWS_TITLE = "title"
 HACKERNEWS_TIME = "time"
 HACKERNEWS_TYPE = "type"
 HACKERNEWS_URL = "url"
+JSON_PREFIX = "articles"
 
 class HackerNewsReader():
     
-    def getStories(self, maxStories):
-        logger.debug("Start getting stories")
+    def getArticles(self, maxArticles):
+        logger.debug("Start getting articles")
         r = pip._vendor.requests.get(HACKER_NEWS_URL)
         newstories = r.json()
-        dataFromStories = {}
-        numOfStories = min(len(newstories), maxStories)
-        logger.debug("Fetching " + str(numOfStories) + " sotries. Iterating...")
+        articles = []
+        numOfStories = min(len(newstories), maxArticles)
+        logger.debug("Fetching " + str(numOfStories) + " articles. Iterating...")
         counter = 1
         for item in newstories:
             currentItemId = currentItemBy = currentItemScore = currentItemTitle = currentItemTime = currentItemType = currentItemURL = ""
@@ -37,36 +39,39 @@ class HackerNewsReader():
             currentItemTitle = currentAsJSON[HACKERNEWS_TITLE] if HACKERNEWS_TITLE in currentAsJSON else ""
             currentItemTime = currentAsJSON[HACKERNEWS_TIME] if HACKERNEWS_TIME in currentAsJSON else ""
             currentItemType = currentAsJSON[HACKERNEWS_TYPE] if HACKERNEWS_TYPE in currentAsJSON else ""
-            currentItemURL = currentAsJSON[HACKERNEWS_URL] if HACKERNEWS_URL in currentAsJSON else "http://www.google.com"
+            currentItemURL = currentAsJSON[HACKERNEWS_URL] if HACKERNEWS_URL in currentAsJSON else "N/A"
 
-            dataFromStories[counter] = {
-                HACKERNEWS_ID: currentItemId, 
-                HACKERNEWS_TITLE: currentItemTitle, 
-                HACKERNEWS_TIME: currentItemTime, 
-                HACKERNEWS_SCORE: currentItemScore,
-                HACKERNEWS_BY: currentItemBy,
-                HACKERNEWS_TYPE: currentItemType,
-                HACKERNEWS_URL: currentItemURL
-                }
+            articles.append(Article(currentItemId, currentItemBy,currentItemScore,currentItemTitle,currentItemTime,currentItemType,currentItemURL))
             counter += 1
             if counter-1 == numOfStories:
                 break
-        return dataFromStories
+        return articles
 
-    def filterStoriesPopularity(self, input):
+    def filterArticlesPopularity(self, input):
         logger.debug("Start filtering based on popularity")
 
-        storiesAsJson = input
+        # wrapping stories with json prefix and converting the return value to json
+        articlesAsJson = "{\"" + JSON_PREFIX + "\": {"
+        counter = 1
+        for item in input:
+            itemAsJson = ArticleEncoder().encode(item)
+            if counter < len(input):
+                itemAsJson += ","
+            articlesAsJson += "\"" + str(counter) + "\":" + itemAsJson
+            counter += 1
+        articlesAsJson += "}}"
 
         logger.debug("====Using the GET API to apply the policy on the data====")
-        data = "{\"input\": " + storiesAsJson + "}"
+        data = "{\"input\": " + articlesAsJson + "}"
+        # logger.debug("This is the data sent to opa: " + data)
         response = requests.post("http://localhost:8181/v1/data", data=data)
         filtered_articles = response.json()
 
+        # logger.debug("Completed filtering with " + str(filtered_articles))
         logger.debug("Completed filtering")
         return filtered_articles["result"]["example"]["popular_articles"]
 
-    def filterStoriesTopics(self, input, topic):
+    def filterArticlesTopics(self, input, topic):
         logger.debug("Start filtering based on topics: " + topic)
 
         if topic == 1:
@@ -88,7 +93,7 @@ class HackerNewsReader():
 
         logger.debug("====Using the GET API to apply the policy on the data====")
         input = "{\"input\": " + storiesAsJson + "}"
-        if data is not "":
+        if data != "":
             data_for_opa = {input, data} 
         else: 
             data_for_opa = input
@@ -97,4 +102,10 @@ class HackerNewsReader():
 
         logger.debug("Completed filtering")
         logger.debug(filtered_articles["result"]["example"])
-        return filtered_articles["result"]["example"]["relevant_to_" + topic]
+        topic_tag = "relevant_to_" + topic
+        if topic_tag in filtered_articles["result"]["example"]:
+            logger.debug("Found articles on " + topic)
+            return filtered_articles["result"]["example"][topic_tag]
+        else:
+            logger.debug("didn't get articles on " + topic)
+            return ""
