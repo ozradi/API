@@ -9,7 +9,7 @@ from hackernews_fetcher import HackerNewsReader
 from fastapi.responses import HTMLResponse
 
 DEBUG = 1
-MAX_STORIES = 3
+MAX_STORIES = 30
 HTML_TAG = "<html>"
 HTML_CLOSE_TAG = "</html>"
 HEAD_TAG = "<head>"
@@ -46,7 +46,7 @@ def showNews():
     return generateHtml(filtered_articles, all_articles, "")
 
 @app.get("/bytopic", response_class=HTMLResponse)
-def showNewsByTopic(q: Optional[str] = None):
+def showNewsByTopic(topic: Optional[str] = None):
     reader = HackerNewsReader()
 
     if DEBUG == 0:
@@ -57,10 +57,10 @@ def showNewsByTopic(q: Optional[str] = None):
         all_articles = reader.getArticles(MAX_STORIES)
     
     logger.debug("Done fetching, now filtering based on OPA policy")
-    filtered_articles = reader.filterArticlesTopics(all_articles, q)
+    filtered_articles = reader.filterArticlesTopics(all_articles, topic)
     
     logger.debug("Done filtering, now printing filtered stories:")
-    return generateHtml(filtered_articles, all_articles, q)
+    return generateHtml(filtered_articles, all_articles, topic)
 
 def generateHtml(content, all_articles, q):
     logger.debug("generating HTML started")
@@ -73,8 +73,8 @@ def generateHtml(content, all_articles, q):
         for item in content:
             logger.debug(item)
             currentArticle = all_articles[int(item)-1]
-            link = " <a target=\"_blank\" href=\"" + currentArticle.url + "\">read more</a>" if currentArticle.url != "N/A" else ""
             upvotes = "[" + str(currentArticle.score) + " upvotes] "
+            link = " <a target=\"_blank\" href=\"" + currentArticle.url + "\">read more</a>" if currentArticle.url != "N/A" else ""
             
             website += P_TAG + upvotes + currentArticle.title + link + P_CLOSE_TAG + BR_TAG
 
