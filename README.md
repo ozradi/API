@@ -11,13 +11,17 @@ To run this project, start by installing & running OPA:
   ```
 
 ### Running OPA:
-```opa run -s opa_files/policy.rego opa_files/data.json --log-level debug --log-format text```
+```
+  opa run -s opa_files/policy.rego opa_files/data.json --log-level debug --log-format text
+```
 Note that we are running OPA with 2 files:
 * policy.rego - this file holds the filtering logic
 * data.json - this file holds a map between a topic and keywords relevant to the topic
 
 Run the project with:
-```uvicorn main:app --reload```
+```
+  uvicorn main:app --reload
+```
 
 ## Overview
 
