@@ -1,4 +1,9 @@
 # Hacker News Filter 
+
+## Demo
+
+<img src="media/hackernews-filter-demo.gif" alt="Hackernews Filter Demo">
+
 ## Quickstart
 
 To run this project, start by installing & running OPA:
