@@ -19,6 +19,7 @@ Note that we are running OPA with 2 files:
 * data.json - this file holds a map between a topic and keywords relevant to the topic
 
 Run the project with:
+
 ```
   uvicorn main:app --reload
 ```
@@ -29,5 +30,5 @@ This project queries Hackernews for stories, then uses OPA to filter the stories
 ## Tech stack
 
 Hackernews articles are returned from Hacker news API - https://github.com/HackerNews/API
-OPA policy is here - https://github.com/open-policy-agent/opa
 
+OPA policy is here - https://github.com/open-policy-agent/opa
