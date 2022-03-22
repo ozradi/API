@@ -38,14 +38,6 @@ relevant_to_faang[articles]{
 	some article_id
 	title_lower = lower(input.articles[article_id].title)
     some faang_item
-    contains(title_lower, data.faang[data_part])
-    articles := article_id
-}
-
-relevant_to_topic[topic]{
-    some article_id
-	title_lower = lower(input.articles[article_id].title)
-    some item
-    contains(title_lower, data[topic][item])
+    contains(title_lower, data.faang[faang_item])
     articles := article_id
 }
