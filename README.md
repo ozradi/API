@@ -4,9 +4,11 @@
 To run this project, start by installing & running OPA:
 
 ### Installing OPA:
-  ```virtualenv env```
-  ```source env/bin/activate```
-  ```pip install -r requirements.txt```
+  ```
+    virtualenv env
+    source env/bin/activate
+    pip install -r requirements.txt
+  ```
 
 ### Running OPA:
 ```opa run -s opa_files/policy.rego opa_files/data.json --log-level debug --log-format text```
