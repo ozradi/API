@@ -1,19 +1,10 @@
-from attr import asdict
 import pip._vendor.requests 
 import json
 from loguru import logger
 import requests
-from article import Article, ArticleEncoder
-import topics
+from data_types.article import Article, ArticleEncoder
 
 HACKER_NEWS_URL = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"
-HACKERNEWS_ID = "id"
-HACKERNEWS_BY = "by"
-HACKERNEWS_SCORE = "score"
-HACKERNEWS_TITLE = "title"
-HACKERNEWS_TIME = "time"
-HACKERNEWS_TYPE = "type"
-HACKERNEWS_URL = "url"
 ARTICLES_PREFIX = "articles"
 
 class HackerNewsReader():
@@ -31,13 +22,13 @@ class HackerNewsReader():
             url = "https://hacker-news.firebaseio.com/v0/item/" + str(item) + ".json?print=pretty"
             current = pip._vendor.requests.get(url)
             currentAsJSON = json.loads(current.text)
-            currentItemId = currentAsJSON[HACKERNEWS_ID] if HACKERNEWS_ID in currentAsJSON else 0
-            currentItemBy = currentAsJSON[HACKERNEWS_BY] if HACKERNEWS_BY in currentAsJSON else "Unknown"
-            currentItemScore = currentAsJSON[HACKERNEWS_SCORE] if HACKERNEWS_SCORE in currentAsJSON else 0
-            currentItemTitle = currentAsJSON[HACKERNEWS_TITLE] if HACKERNEWS_TITLE in currentAsJSON else ""
-            currentItemTime = currentAsJSON[HACKERNEWS_TIME] if HACKERNEWS_TIME in currentAsJSON else ""
-            currentItemType = currentAsJSON[HACKERNEWS_TYPE] if HACKERNEWS_TYPE in currentAsJSON else ""
-            currentItemURL = currentAsJSON[HACKERNEWS_URL] if HACKERNEWS_URL in currentAsJSON else "N/A"
+            currentItemId = currentAsJSON[Article.HACKERNEWS_ID] if Article.HACKERNEWS_ID in currentAsJSON else 0
+            currentItemBy = currentAsJSON[Article.HACKERNEWS_BY] if Article.HACKERNEWS_BY in currentAsJSON else "Unknown"
+            currentItemScore = currentAsJSON[Article.HACKERNEWS_SCORE] if Article.HACKERNEWS_SCORE in currentAsJSON else 0
+            currentItemTitle = currentAsJSON[Article.HACKERNEWS_TITLE] if Article.HACKERNEWS_TITLE in currentAsJSON else ""
+            currentItemTime = currentAsJSON[Article.HACKERNEWS_TIME] if Article.HACKERNEWS_TIME in currentAsJSON else ""
+            currentItemType = currentAsJSON[Article.HACKERNEWS_TYPE] if Article.HACKERNEWS_TYPE in currentAsJSON else ""
+            currentItemURL = currentAsJSON[Article.HACKERNEWS_URL] if Article.HACKERNEWS_URL in currentAsJSON else "N/A"
 
             articles.append(Article(currentItemId, currentItemBy,currentItemScore,currentItemTitle,currentItemTime,currentItemType,currentItemURL))
             counter += 1

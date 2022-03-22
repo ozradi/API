@@ -1,4 +1,4 @@
-class HTMLTAGS:
+class HTML_TAGS:
     HTML_TAG = "<html>"
     HTML_CLOSE_TAG = "</html>"
     HEAD_TAG = "<head>"
@@ -10,4 +10,5 @@ class HTMLTAGS:
     P_TAG = "<p>"
     P_CLOSE_TAG = "</p>"
     BR_TAG = "<br/>"
-    JSON_PREFIX = "articles"
+    A_TAG_NEW_TAB = "<a target=\"_blank\" href=\""
+    A_CLOSE_TAG = "</a>"

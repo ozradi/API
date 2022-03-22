@@ -2,19 +2,16 @@ from dataclasses import dataclass
 import json
 from json import JSONEncoder
 
-from loguru import logger
-
-JSON_PREFIX = "articles"
-HACKERNEWS_ID = "id"
-HACKERNEWS_BY = "by"
-HACKERNEWS_SCORE = "score"
-HACKERNEWS_TITLE = "title"
-HACKERNEWS_TIME = "time"
-HACKERNEWS_TYPE = "type"
-HACKERNEWS_URL = "url"
 
 @dataclass
 class Article:
+    HACKERNEWS_ID = "id"
+    HACKERNEWS_BY = "by"
+    HACKERNEWS_SCORE = "score"
+    HACKERNEWS_TITLE = "title"
+    HACKERNEWS_TIME = "time"
+    HACKERNEWS_TYPE = "type"
+    HACKERNEWS_URL = "url"
     id = by = score = title = time = type = url = ""
 
     def __init__(self, currentItemId, currentItemBy, currentItemScore, currentItemTitle, currentItemTime, currentItemType, currentItemURL):
@@ -31,13 +28,13 @@ class ArticleEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, Article):
             return {
-                HACKERNEWS_ID:    o.id,
-                HACKERNEWS_BY:    o.by,
-                HACKERNEWS_SCORE: o.score,
-                HACKERNEWS_TITLE: o.title,
-                HACKERNEWS_TIME:  o.time,
-                HACKERNEWS_TYPE:  o.type,
-                HACKERNEWS_URL:   o.url
+                Article.HACKERNEWS_ID:    o.id,
+                Article.HACKERNEWS_BY:    o.by,
+                Article.HACKERNEWS_SCORE: o.score,
+                Article.HACKERNEWS_TITLE: o.title,
+                Article.HACKERNEWS_TIME:  o.time,
+                Article.HACKERNEWS_TYPE:  o.type,
+                Article.HACKERNEWS_URL:   o.url
             }
         else:
             # call base class implementation which takes care of

@@ -4,11 +4,10 @@ from typing import Optional
 from fastapi import FastAPI
 import json
 from loguru import logger
-from article import Article
 from hackernews_fetcher import HackerNewsReader
 from fastapi.responses import HTMLResponse
 
-from html_tags import HTMLTAGS
+from data_types.html_tags import HTML_TAGS
 
 DEBUG = 1
 MAX_STORIES = 30
@@ -53,21 +52,21 @@ def showNewsByTopic(topic: Optional[str] = None):
     logger.debug("Done filtering, now printing filtered stories:")
     return generateHtml(filtered_articles, all_articles, topic)
 
-def generateHtml(content, all_articles, q):
+def generateHtml(content, all_articles, topic):
     logger.debug("generating HTML started")
-    website = HTMLTAGS.HTML_TAG + HTMLTAGS.HEAD_TAG + HTMLTAGS.TITLE_TAG + "Filtered HN" + HTMLTAGS.TITLE_CLOSE_TAG + HTMLTAGS.HEAD_CLOSE_TAG + HTMLTAGS.BODY_TAG
+    website = HTML_TAGS.HTML_TAG + HTML_TAGS.HEAD_TAG + HTML_TAGS.TITLE_TAG + "Filtered HN" + HTML_TAGS.TITLE_CLOSE_TAG + HTML_TAGS.HEAD_CLOSE_TAG + HTML_TAGS.BODY_TAG
     
     logger.debug(all_articles)
     if content == "":
-        website += "didn't find articles on your topic " + q
+        website += "I didn't find articles on your topic: " + topic
     else:
         for item in content:
             currentArticle = all_articles[int(item)-1]
             upvotes = "[" + str(currentArticle.score) + " upvotes] "
-            link = " <a target=\"_blank\" href=\"" + currentArticle.url + "\">read more</a>" if currentArticle.url != "N/A" else ""
+            link = HTML_TAGS.A_TAG_NEW_TAB + currentArticle.url + "\">read more" + HTML_TAGS.A_CLOSE_TAG if currentArticle.url != "N/A" else ""
             
-            website += HTMLTAGS.P_TAG + upvotes + currentArticle.title + link + HTMLTAGS.P_CLOSE_TAG + HTMLTAGS.BR_TAG
+            website += HTML_TAGS.P_TAG + upvotes + currentArticle.title + link + HTML_TAGS.P_CLOSE_TAG + HTML_TAGS.BR_TAG
 
-    website += HTMLTAGS.BODY_CLOSE_TAG + HTMLTAGS.HTML_CLOSE_TAG
+    website += HTML_TAGS.BODY_CLOSE_TAG + HTML_TAGS.HTML_CLOSE_TAG
     logger.debug("generating HTML ended")
     return website
