@@ -4,6 +4,7 @@ from typing import Optional
 from fastapi import FastAPI
 import json
 from loguru import logger
+from data_types.topics import topics
 from hackernews_fetcher import HackerNewsReader
 from fastapi.responses import HTMLResponse
 
@@ -12,19 +13,36 @@ from data_types.html_tags import HTML_TAGS
 DEBUG = 1
 MAX_STORIES = 30
 JSON_PREFIX = "articles"
-
+TITLE =  "Filtered HN"
 app = FastAPI()
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def read_root(): 
-    return {"hello, world"}
+    logger.debug("generating HTML started")
+    website = HTML_TAGS.HTML_TAG + HTML_TAGS.HEAD_TAG + HTML_TAGS.TITLE_TAG + TITLE + HTML_TAGS.TITLE_CLOSE_TAG + HTML_TAGS.HEAD_CLOSE_TAG + HTML_TAGS.BODY_TAG
+    website += HTML_TAGS.P_TAG + "Hello, world! Welcome to your Hackernews filter" + HTML_TAGS.P_CLOSE_TAG
+    website += HTML_TAGS.P_TAG + "Want to see only liked articles? Simply change the route to include /popular (or " + HTML_TAGS.A_TAG_NEW_TAB + "/popular\">click here" + HTML_TAGS.A_CLOSE_TAG + ")" + HTML_TAGS.P_CLOSE_TAG
+    website += HTML_TAGS.P_TAG + "Want to see articles on a specific topic? Simply change the route to include /bytopic?topic=" + HTML_TAGS.P_CLOSE_TAG
+    website += HTML_TAGS.P_TAG + "Supported topics are: "
+    counter = 0
+    for topic in topics.list():
+        link = HTML_TAGS.A_TAG_NEW_TAB + "/bytopic?topic=" + topic.lower() + "\">" + topic.lower() + HTML_TAGS.A_CLOSE_TAG
+        logger.debug(link)
+        website += link
+        if counter < len(topics):
+            website += ", "
+            counter += 1
+    website += HTML_TAGS.P_CLOSE_TAG
+    website += HTML_TAGS.BODY_CLOSE_TAG + HTML_TAGS.HTML_CLOSE_TAG
+    logger.debug("generating HTML ended")
+    return website
 
-@app.get("/more_than_100", response_class=HTMLResponse)
+@app.get("/popular", response_class=HTMLResponse)
 def showNews():
     reader = HackerNewsReader()
     if DEBUG == 0:
     # for debug purposes, loading all stories from a mock, instead of from Hackernews
-        with open('example/mock_input.json') as json_file:
+        with open('opa_files/mock_input.json') as json_file:
             all_articles = json.load(json_file)
     else:
         all_articles = reader.getArticles(MAX_STORIES)
@@ -41,7 +59,7 @@ def showNewsByTopic(topic: Optional[str] = None):
 
     if DEBUG == 0:
     # for debug purposes, loading all stories from a mock, instead of from Hackernews
-        with open('example/mock_input.json') as json_file:
+        with open('opa_files/mock_input.json') as json_file:
             all_articles = json.load(json_file)
     else:
         all_articles = reader.getArticles(MAX_STORIES)
@@ -54,19 +72,26 @@ def showNewsByTopic(topic: Optional[str] = None):
 
 def generateHtml(content, all_articles, topic):
     logger.debug("generating HTML started")
-    website = HTML_TAGS.HTML_TAG + HTML_TAGS.HEAD_TAG + HTML_TAGS.TITLE_TAG + "Filtered HN" + HTML_TAGS.TITLE_CLOSE_TAG + HTML_TAGS.HEAD_CLOSE_TAG + HTML_TAGS.BODY_TAG
+    website = HTML_TAGS.HTML_TAG + HTML_TAGS.HEAD_TAG + HTML_TAGS.TITLE_TAG + TITLE + HTML_TAGS.TITLE_CLOSE_TAG + HTML_TAGS.HEAD_CLOSE_TAG + HTML_TAGS.BODY_TAG
     
     logger.debug(all_articles)
     if content == "":
-        website += "I didn't find articles on your topic: " + topic
+        website += "I didn't get articles on " + topic + ". Available topics: " 
+        for topic in topics.list():
+            link = HTML_TAGS.A_TAG_NEW_TAB + "/bytopic?topic=" + topic.lower() + "\">" + topic.lower() + HTML_TAGS.A_CLOSE_TAG
+            logger.debug(link)
+            website += link
+        if counter < len(topics):
+            website += ", "
+            counter += 1
     else:
         for item in content:
             currentArticle = all_articles[int(item)-1]
-            upvotes = "[" + str(currentArticle.score) + " upvotes] "
-            link = HTML_TAGS.A_TAG_NEW_TAB + currentArticle.url + "\">read more" + HTML_TAGS.A_CLOSE_TAG if currentArticle.url != "N/A" else ""
+            currentUpvotes = "[" + str(currentArticle.score) + " upvotes] "
+            currentLink = " " + HTML_TAGS.A_TAG_NEW_TAB + currentArticle.url + "\">Link" + HTML_TAGS.A_CLOSE_TAG if currentArticle.url != "N/A" else ""
             
-            website += HTML_TAGS.P_TAG + upvotes + currentArticle.title + link + HTML_TAGS.P_CLOSE_TAG + HTML_TAGS.BR_TAG
+            website += HTML_TAGS.P_TAG + currentUpvotes + currentArticle.title + currentLink + HTML_TAGS.P_CLOSE_TAG + HTML_TAGS.BR_TAG
 
     website += HTML_TAGS.BODY_CLOSE_TAG + HTML_TAGS.HTML_CLOSE_TAG
-    logger.debug("generating HTML ended")
+    logger.debug("Generating HTML ended")
     return website

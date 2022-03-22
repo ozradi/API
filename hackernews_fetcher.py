@@ -3,10 +3,13 @@ import json
 from loguru import logger
 import requests
 from data_types.article import Article, ArticleEncoder
+from data_types.topics import topics
+from opa_files.opa_tags import OPA_TAGS
 
 HACKER_NEWS_URL = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"
 ARTICLES_PREFIX = "articles"
-
+HACKER_NEWS_ARTICLE_URL = "https://hacker-news.firebaseio.com/v0/item/XXX.json?print=pretty"
+HACKER_NEWS_ARTICLE_PLACEHOLDER = "XXX"
 class HackerNewsReader():
     
     def getArticles(self, maxArticles):
@@ -16,10 +19,10 @@ class HackerNewsReader():
         articles = []
         numOfStories = min(len(newstories), maxArticles)
         logger.debug("Fetching " + str(numOfStories) + " articles. Iterating...")
-        counter = 1
+        articlesCounter = 1
         for item in newstories:
             currentItemId = currentItemBy = currentItemScore = currentItemTitle = currentItemTime = currentItemType = currentItemURL = ""
-            url = "https://hacker-news.firebaseio.com/v0/item/" + str(item) + ".json?print=pretty"
+            url = HACKER_NEWS_ARTICLE_URL.replace(HACKER_NEWS_ARTICLE_PLACEHOLDER, str(item))
             current = pip._vendor.requests.get(url)
             currentAsJSON = json.loads(current.text)
             currentItemId = currentAsJSON[Article.HACKERNEWS_ID] if Article.HACKERNEWS_ID in currentAsJSON else 0
@@ -31,8 +34,8 @@ class HackerNewsReader():
             currentItemURL = currentAsJSON[Article.HACKERNEWS_URL] if Article.HACKERNEWS_URL in currentAsJSON else "N/A"
 
             articles.append(Article(currentItemId, currentItemBy,currentItemScore,currentItemTitle,currentItemTime,currentItemType,currentItemURL))
-            counter += 1
-            if counter-1 == numOfStories:
+            articlesCounter += 1
+            if articlesCounter-1 == numOfStories:
                 break
         logger.debug("ended getting articles")
         return articles
@@ -41,7 +44,7 @@ class HackerNewsReader():
         logger.debug("====Using the GET API to apply the policy on the data====")
         
         # wrapping stories with json prefix
-        inputAsJSON = "{\"input\": {\"" + ARTICLES_PREFIX + "\": {"
+        inputAsJSON = "{\""+ OPA_TAGS.OPA_INPUT + "\": {\"" + ARTICLES_PREFIX + "\": {"
         counter = 1
         # converting the input to JSON, OPA's supported format
         for item in input:
@@ -58,12 +61,12 @@ class HackerNewsReader():
                 inputAsJSON += ',\"' + item + "\":" + json.dumps(data[item])
         inputAsJSON += "}"
         logger.debug(inputAsJSON)
-        response = requests.post("http://localhost:8181/v1/data", inputAsJSON)
+        response = requests.post(OPA_TAGS.OPA_URL, inputAsJSON)
         if(response.status_code == 200):
             logger.debug("completed" + str(response.json()))
             return response.json()
         else:
-            logger.debug("error querying opa!")
+            logger.debug("error querying OPA!")
             return ""
 
     def filterArticlesPopularity(self, input):
@@ -73,22 +76,23 @@ class HackerNewsReader():
         
         # logger.debug("Completed filtering with " + str(filtered_articles))
         logger.debug("Completed filtering")
-        return filtered_articles["result"]["example"]["popular_articles"]
+        return filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE][OPA_TAGS.OPA_POPULAR_ARTICLES]
 
     def filterArticlesTopics(self, input, topic):
         logger.debug("Start filtering based on topics: " + topic)
 
-        with open('example/data.json') as json_file:
+        with open(OPA_TAGS.OPA_DATA_FILE_PATH) as json_file:
             data = json.load(json_file)
 
         filtered_articles = self.queryOPA(input, data)
 
         logger.debug("Completed filtering")
-        logger.debug(filtered_articles["result"]["example"])
+        logger.debug(filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE])
         topic_tag = "relevant_to_" + topic
-        if topic_tag in filtered_articles["result"]["example"]:
+        if topic_tag in filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE]:
             logger.debug("Found articles on " + topic)
-            return filtered_articles["result"]["example"][topic_tag]
+            return filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE][topic_tag]
         else:
-            logger.debug("didn't get articles on " + topic)
+            no_results = "I didn't get articles on " + topic + ". Available topics: " + str(topics.list()).lower()
+            logger.debug(no_results)
             return ""

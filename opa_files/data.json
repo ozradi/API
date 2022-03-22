@@ -33,5 +33,17 @@
         "google",
         "netflix",
         "twitter"
+    ],
+    "authorization": [
+        "opa",
+        "permissions",
+        "permit.io",
+        "opal",
+        "optoggles",
+        "authorization",
+        "oso",
+        "casbin",
+        "iam",
+        "access token"
     ]
 }

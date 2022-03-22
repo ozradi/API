@@ -1,5 +1,5 @@
 # import data.utils
-package example
+package hackernewsfilter
 
 # Example - https://play.openpolicyagent.org/p/ioxt45pdrG
 # Example - https://play.openpolicyagent.org/p/yI54xspChS
