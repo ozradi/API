@@ -2,18 +2,21 @@
 ## Quickstart
 
 To run this project, start by installing & running OPA:
+### Building OPA:
 
-### Installing OPA:
+Create an virtualenv and install the requirements:
+
   ```
     virtualenv env
     source env/bin/activate
     pip install -r requirements.txt
   ```
-
 ### Running OPA:
+
 ```
   opa run -s opa_files/policy.rego opa_files/data.json --log-level debug --log-format text
 ```
+
 Note that we are running OPA with 2 files:
 * policy.rego - this file holds the filtering logic
 * data.json - this file holds a map between a topic and keywords relevant to the topic
