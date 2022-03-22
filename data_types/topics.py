@@ -4,7 +4,7 @@ class topics(Enum):
     BIOLOGY = 1
     CRYPTO = 2
     SAPCE = 3
-    TFAANG = 4
+    FAANG = 4
     AUTHORIZATION = 5
 
     def __str__(self):
