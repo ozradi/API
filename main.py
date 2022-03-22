@@ -65,33 +65,35 @@ def showNewsByTopic(topic: Optional[str] = None):
         all_articles = reader.getArticles(MAX_STORIES)
     
     logger.debug("Done fetching, now filtering based on OPA policy")
-    filtered_articles = reader.filterArticlesTopics(all_articles, topic)
+    filtered_article_ids = reader.filterArticlesTopics(all_articles, topic)
     
     logger.debug("Done filtering, now printing filtered stories:")
-    return generateHtml(filtered_articles, all_articles, topic)
+    return generateHtml(filtered_article_ids, all_articles, topic)
 
-def generateHtml(content, all_articles, topic):
+def generateHtml(filtered_article_ids, all_articles, topic):
     logger.debug("generating HTML started")
     website = HTML_TAGS.HTML_TAG + HTML_TAGS.HEAD_TAG + HTML_TAGS.TITLE_TAG + TITLE + HTML_TAGS.TITLE_CLOSE_TAG + HTML_TAGS.HEAD_CLOSE_TAG + HTML_TAGS.BODY_TAG
     
     logger.debug(all_articles)
-    if content == "":
+    if filtered_article_ids == "":
+        counter = 1
         website += "I didn't get articles on " + topic + ". Available topics: " 
         for topic in topics.list():
             link = HTML_TAGS.A_TAG_NEW_TAB + "/bytopic?topic=" + topic.lower() + "\">" + topic.lower() + HTML_TAGS.A_CLOSE_TAG
-            logger.debug(link)
             website += link
-        if counter < len(topics):
-            website += ", "
-            counter += 1
+            if counter < len(topics):
+                logger.debug("adding comma")
+                website += ", "
+                counter += 1
     else:
-        for item in content:
+        for item in filtered_article_ids:
             currentArticle = all_articles[int(item)-1]
             currentUpvotes = "[" + str(currentArticle.score) + " upvotes] "
             currentLink = " " + HTML_TAGS.A_TAG_NEW_TAB + currentArticle.url + "\">Link" + HTML_TAGS.A_CLOSE_TAG if currentArticle.url != "N/A" else ""
             
-            website += HTML_TAGS.P_TAG + currentUpvotes + currentArticle.title + currentLink + HTML_TAGS.P_CLOSE_TAG + HTML_TAGS.BR_TAG
+            website += HTML_TAGS.P_TAG + currentUpvotes + currentArticle.title + currentLink + HTML_TAGS.P_CLOSE_TAG
 
+    website += HTML_TAGS.A_TAG_NEW_TAB + "/\">home" + HTML_TAGS.A_CLOSE_TAG
     website += HTML_TAGS.BODY_CLOSE_TAG + HTML_TAGS.HTML_CLOSE_TAG
     logger.debug("Generating HTML ended")
     return website
