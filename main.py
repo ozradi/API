@@ -8,19 +8,10 @@ from article import Article
 from hackernews_fetcher import HackerNewsReader
 from fastapi.responses import HTMLResponse
 
+from html_tags import HTMLTAGS
+
 DEBUG = 1
 MAX_STORIES = 30
-HTML_TAG = "<html>"
-HTML_CLOSE_TAG = "</html>"
-HEAD_TAG = "<head>"
-HEAD_CLOSE_TAG = "</head>"
-TITLE_TAG = "<title>"
-TITLE_CLOSE_TAG = "</title>"
-BODY_TAG = "<body>"
-BODY_CLOSE_TAG = "</body>"
-P_TAG = "<p>"
-P_CLOSE_TAG = "</p>"
-BR_TAG = "<br/>"
 JSON_PREFIX = "articles"
 
 app = FastAPI()
@@ -64,20 +55,19 @@ def showNewsByTopic(topic: Optional[str] = None):
 
 def generateHtml(content, all_articles, q):
     logger.debug("generating HTML started")
-    website = HTML_TAG + HEAD_TAG + TITLE_TAG + "Filtered HN" + TITLE_CLOSE_TAG + HEAD_CLOSE_TAG + BODY_TAG
+    website = HTMLTAGS.HTML_TAG + HTMLTAGS.HEAD_TAG + HTMLTAGS.TITLE_TAG + "Filtered HN" + HTMLTAGS.TITLE_CLOSE_TAG + HTMLTAGS.HEAD_CLOSE_TAG + HTMLTAGS.BODY_TAG
     
     logger.debug(all_articles)
     if content == "":
         website += "didn't find articles on your topic " + q
     else:
         for item in content:
-            logger.debug(item)
             currentArticle = all_articles[int(item)-1]
             upvotes = "[" + str(currentArticle.score) + " upvotes] "
             link = " <a target=\"_blank\" href=\"" + currentArticle.url + "\">read more</a>" if currentArticle.url != "N/A" else ""
             
-            website += P_TAG + upvotes + currentArticle.title + link + P_CLOSE_TAG + BR_TAG
+            website += HTMLTAGS.P_TAG + upvotes + currentArticle.title + link + HTMLTAGS.P_CLOSE_TAG + HTMLTAGS.BR_TAG
 
-    website += BODY_CLOSE_TAG + HTML_CLOSE_TAG
+    website += HTMLTAGS.BODY_CLOSE_TAG + HTMLTAGS.HTML_CLOSE_TAG
     logger.debug("generating HTML ended")
     return website

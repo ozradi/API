@@ -1,0 +1,13 @@
+class HTMLTAGS:
+    HTML_TAG = "<html>"
+    HTML_CLOSE_TAG = "</html>"
+    HEAD_TAG = "<head>"
+    HEAD_CLOSE_TAG = "</head>"
+    TITLE_TAG = "<title>"
+    TITLE_CLOSE_TAG = "</title>"
+    BODY_TAG = "<body>"
+    BODY_CLOSE_TAG = "</body>"
+    P_TAG = "<p>"
+    P_CLOSE_TAG = "</p>"
+    BR_TAG = "<br/>"
+    JSON_PREFIX = "articles"
