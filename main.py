@@ -26,7 +26,7 @@ def read_root():
     website += HTML_TAGS.P_TAG + "Supported topics are: "
     counter = 0
     for topic in topics.list():
-        link = HTML_TAGS.A_TAG_NEW_TAB + "/bytopic?topic=" + topic.lower() + "\">" + topic.lower() + HTML_TAGS.A_CLOSE_TAG
+        link = HTML_TAGS.A_TAG + "/bytopic?topic=" + topic.lower() + "\">" + topic.lower() + HTML_TAGS.A_CLOSE_TAG
         logger.debug(link)
         website += link
         if counter < len(topics):
@@ -74,17 +74,19 @@ def generateHtml(filtered_article_ids, all_articles, topic):
     logger.debug("generating HTML started")
     website = HTML_TAGS.HTML_TAG + HTML_TAGS.HEAD_TAG + HTML_TAGS.TITLE_TAG + TITLE + HTML_TAGS.TITLE_CLOSE_TAG + HTML_TAGS.HEAD_CLOSE_TAG + HTML_TAGS.BODY_TAG
     
-    logger.debug(all_articles)
+    logger.debug(filtered_article_ids)
     if filtered_article_ids == "":
         counter = 1
         website += "I didn't get articles on " + topic + ". Available topics: " 
         for topic in topics.list():
-            link = HTML_TAGS.A_TAG_NEW_TAB + "/bytopic?topic=" + topic.lower() + "\">" + topic.lower() + HTML_TAGS.A_CLOSE_TAG
+            link = HTML_TAGS.A_TAG + "/bytopic?topic=" + topic.lower() + "\">" + topic.lower() + HTML_TAGS.A_CLOSE_TAG
             website += link
             if counter < len(topics):
                 logger.debug("adding comma")
                 website += ", "
                 counter += 1
+    elif filtered_article_ids == "Can't access OPA. Is it up?":
+        website += filtered_article_ids
     else:
         for item in filtered_article_ids:
             currentArticle = all_articles[int(item)-1]
@@ -93,7 +95,7 @@ def generateHtml(filtered_article_ids, all_articles, topic):
             
             website += HTML_TAGS.P_TAG + currentUpvotes + currentArticle.title + currentLink + HTML_TAGS.P_CLOSE_TAG
 
-    website += HTML_TAGS.A_TAG_NEW_TAB + "/\">home" + HTML_TAGS.A_CLOSE_TAG
+    website += HTML_TAGS.A_TAG + "/\">home" + HTML_TAGS.A_CLOSE_TAG
     website += HTML_TAGS.BODY_CLOSE_TAG + HTML_TAGS.HTML_CLOSE_TAG
     logger.debug("Generating HTML ended")
     return website

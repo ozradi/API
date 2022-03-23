@@ -11,4 +11,5 @@ class HTML_TAGS:
     P_CLOSE_TAG = "</p>"
     BR_TAG = "<br/>"
     A_TAG_NEW_TAB = "<a target=\"_blank\" href=\""
+    A_TAG = "<a href=\""
     A_CLOSE_TAG = "</a>"

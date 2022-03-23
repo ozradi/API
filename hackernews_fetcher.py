@@ -1,7 +1,6 @@
-import pip._vendor.requests 
+import requests
 import json
 from loguru import logger
-import requests
 from data_types.article import Article, ArticleEncoder
 from data_types.topics import topics
 from opa_files.opa_tags import OPA_TAGS
@@ -14,7 +13,7 @@ class HackerNewsReader():
     
     def getArticles(self, maxArticles):
         logger.debug("Start getting articles")
-        r = pip._vendor.requests.get(HACKER_NEWS_URL)
+        r = requests.get(HACKER_NEWS_URL)
         newstories = r.json()
         articles = []
         numOfStories = min(len(newstories), maxArticles)
@@ -23,7 +22,7 @@ class HackerNewsReader():
         for item in newstories:
             currentItemId = currentItemBy = currentItemScore = currentItemTitle = currentItemTime = currentItemType = currentItemURL = ""
             url = HACKER_NEWS_ARTICLE_URL.replace(HACKER_NEWS_ARTICLE_PLACEHOLDER, str(item))
-            current = pip._vendor.requests.get(url)
+            current = requests.get(url)
             currentAsJSON = json.loads(current.text)
             currentItemId = currentAsJSON[Article.HACKERNEWS_ID] if Article.HACKERNEWS_ID in currentAsJSON else 0
             currentItemBy = currentAsJSON[Article.HACKERNEWS_BY] if Article.HACKERNEWS_BY in currentAsJSON else "Unknown"
@@ -61,22 +60,29 @@ class HackerNewsReader():
                 inputAsJSON += ',\"' + item + "\":" + json.dumps(data[item])
         inputAsJSON += "}"
         logger.debug(inputAsJSON)
-        response = requests.post(OPA_TAGS.OPA_URL, inputAsJSON)
+        try:
+            response = requests.post(OPA_TAGS.OPA_URL, inputAsJSON)
+        except:
+            logger.debug("Can't access OPA. Is it up?")
+            return "Can't access OPA. Is it up?"
         if(response.status_code == 200):
             logger.debug("completed" + str(response.json()))
             return response.json()
         else:
             logger.debug("error querying OPA!")
-            return ""
+            return "error querying OPA!"
 
     def filterArticlesPopularity(self, input):
         logger.debug("Start filtering based on popularity")
 
         filtered_articles = self.queryOPA(input, "")
         
-        # logger.debug("Completed filtering with " + str(filtered_articles))
         logger.debug("Completed filtering")
-        return filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE][OPA_TAGS.OPA_POPULAR_ARTICLES]
+        if OPA_TAGS.OPA_RESULT in filtered_articles:
+            if OPA_TAGS.REGO_NAMESPACE in filtered_articles[OPA_TAGS.OPA_RESULT]:
+                if OPA_TAGS.OPA_POPULAR_ARTICLES in filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE]:
+                    return filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE][OPA_TAGS.OPA_POPULAR_ARTICLES]
+        return filtered_articles
 
     def filterArticlesTopics(self, input, topic):
         logger.debug("Start filtering based on topics: " + topic)
@@ -85,14 +91,16 @@ class HackerNewsReader():
             data = json.load(json_file)
 
         filtered_articles = self.queryOPA(input, data)
-
+        
         logger.debug("Completed filtering")
-        logger.debug(filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE])
         topic_tag = "relevant_to_" + topic
-        if topic_tag in filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE]:
-            logger.debug("Found articles on " + topic)
-            return filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE][topic_tag]
-        else:
-            no_results = "I didn't get articles on " + topic + ". Available topics: " + str(topics.list()).lower()
-            logger.debug(no_results)
-            return ""
+        if OPA_TAGS.OPA_RESULT in filtered_articles:
+            if OPA_TAGS.REGO_NAMESPACE in filtered_articles[OPA_TAGS.OPA_RESULT]:
+                if topic_tag in filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE]:
+                    logger.debug("Found articles on " + topic)
+                    return filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE][topic_tag]
+                else:
+                    no_results = "I didn't get articles on " + topic + ". Available topics: " + str(topics.list()).lower()
+                    logger.debug(no_results)
+                    return filtered_articles
+        return filtered_articles
