@@ -72,30 +72,28 @@ def showNewsByTopic(topic: Optional[str] = None):
 
 def generateHtml(filtered_article_ids, all_articles, topic):
     logger.debug("generating HTML started")
-    website = HTML_TAGS.HTML_TAG + HTML_TAGS.HEAD_TAG + HTML_TAGS.TITLE_TAG + TITLE + HTML_TAGS.TITLE_CLOSE_TAG + HTML_TAGS.HEAD_CLOSE_TAG + HTML_TAGS.BODY_TAG
+    website_content = HTML_TAGS.HTML_TAG + HTML_TAGS.HEAD_TAG + HTML_TAGS.TITLE_TAG + TITLE + HTML_TAGS.TITLE_CLOSE_TAG + HTML_TAGS.HEAD_CLOSE_TAG + HTML_TAGS.BODY_TAG
     
-    logger.debug(filtered_article_ids)
-    if filtered_article_ids == "":
+    if filtered_article_ids == "" or len(filtered_article_ids) == 0:
         counter = 1
-        website += "I didn't get articles on " + topic + ". Available topics: " 
+        website_content += "I didn't get articles on " + topic + "." + HTML_TAGS.BR_TAG + "Available topics: " 
         for topic in topics.list():
             link = HTML_TAGS.A_TAG + "/bytopic?topic=" + topic.lower() + "\">" + topic.lower() + HTML_TAGS.A_CLOSE_TAG
-            website += link
+            website_content += link
             if counter < len(topics):
-                logger.debug("adding comma")
-                website += ", "
+                website_content += ", "
                 counter += 1
     elif filtered_article_ids == "Can't access OPA. Is it up?":
-        website += filtered_article_ids
+        website_content += filtered_article_ids
     else:
         for item in filtered_article_ids:
             currentArticle = all_articles[int(item)-1]
             currentUpvotes = "[" + str(currentArticle.score) + " upvotes] "
             currentLink = " " + HTML_TAGS.A_TAG_NEW_TAB + currentArticle.url + "\">Link" + HTML_TAGS.A_CLOSE_TAG if currentArticle.url != "N/A" else ""
             
-            website += HTML_TAGS.P_TAG + currentUpvotes + currentArticle.title + currentLink + HTML_TAGS.P_CLOSE_TAG
+            website_content += HTML_TAGS.P_TAG + currentUpvotes + currentArticle.title + currentLink + HTML_TAGS.P_CLOSE_TAG
 
-    website += HTML_TAGS.A_TAG + "/\">home" + HTML_TAGS.A_CLOSE_TAG
-    website += HTML_TAGS.BODY_CLOSE_TAG + HTML_TAGS.HTML_CLOSE_TAG
+    website_content += HTML_TAGS.A_TAG + "/\">home" + HTML_TAGS.A_CLOSE_TAG
+    website_content += HTML_TAGS.BODY_CLOSE_TAG + HTML_TAGS.HTML_CLOSE_TAG
     logger.debug("Generating HTML ended")
-    return website
+    return website_content
