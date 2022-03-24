@@ -4,11 +4,12 @@
     <title>Hackernews Filter</title>
 </head>
 <body>
-    <ul id="articles">
+    <p id="articles">
     {% for item in articles %}
-        <li>({{item.score}} upvotes) {{ item.title }}. <a target="_blank" href="{{ item.url }}">Read more</a></li>
+        {{item.score}} upvotes: {{ item.title }} (by {{item.by}}). <a target="_blank" href="{{ item.url }}">Read more</a>
+        <br/>
     {% endfor %}
-    </ul>
+    </p>
     <p>
         <a href="/">home</a>
     </p>
