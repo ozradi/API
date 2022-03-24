@@ -11,7 +11,7 @@ from fastapi.responses import HTMLResponse
 from data_types.html_tags import HTML_TAGS
 
 DEBUG = 1
-MAX_STORIES = 30
+MAX_STORIES = 10
 JSON_PREFIX = "articles"
 TITLE =  "Filtered HN"
 app = FastAPI()
@@ -21,7 +21,7 @@ def read_root():
     logger.debug("generating HTML started")
     website = HTML_TAGS.HTML_TAG + HTML_TAGS.HEAD_TAG + HTML_TAGS.TITLE_TAG + TITLE + HTML_TAGS.TITLE_CLOSE_TAG + HTML_TAGS.HEAD_CLOSE_TAG + HTML_TAGS.BODY_TAG
     website += HTML_TAGS.P_TAG + "Hello, world! Welcome to your Hackernews filter" + HTML_TAGS.P_CLOSE_TAG
-    website += HTML_TAGS.P_TAG + "Want to see only liked articles? Simply change the route to include /popular (or " + HTML_TAGS.A_TAG_NEW_TAB + "/popular\">click here" + HTML_TAGS.A_CLOSE_TAG + ")" + HTML_TAGS.P_CLOSE_TAG
+    website += HTML_TAGS.P_TAG + "Want to see only liked articles? Simply change the route to include /popular (or " + HTML_TAGS.A_TAG + "/popular\">click here" + HTML_TAGS.A_CLOSE_TAG + ")" + HTML_TAGS.P_CLOSE_TAG
     website += HTML_TAGS.P_TAG + "Want to see articles on a specific topic? Simply change the route to include /bytopic?topic=" + HTML_TAGS.P_CLOSE_TAG
     website += HTML_TAGS.P_TAG + "Supported topics are: "
     counter = 0
@@ -73,7 +73,7 @@ def showNewsByTopic(topic: Optional[str] = None):
 def generateHtml(filtered_article_ids, all_articles, topic):
     logger.debug("generating HTML started")
     website_content = HTML_TAGS.HTML_TAG + HTML_TAGS.HEAD_TAG + HTML_TAGS.TITLE_TAG + TITLE + HTML_TAGS.TITLE_CLOSE_TAG + HTML_TAGS.HEAD_CLOSE_TAG + HTML_TAGS.BODY_TAG
-    
+    logger.debug(filtered_article_ids)
     if filtered_article_ids == "" or len(filtered_article_ids) == 0:
         counter = 1
         website_content += "I didn't get articles on " + topic + "." + HTML_TAGS.BR_TAG + "Available topics: " 
