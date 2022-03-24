@@ -13,8 +13,8 @@ class HackerNewsReader():
     
     def getArticles(self, maxArticles):
         logger.debug("Start getting articles")
-        r = requests.get(HACKER_NEWS_URL)
-        newstories = r.json()
+        stories_ids_list = requests.get(HACKER_NEWS_URL)
+        newstories = stories_ids_list.json()
         articles = []
         numOfStories = min(len(newstories), maxArticles)
         logger.debug("Fetching " + str(numOfStories) + " articles. Iterating...")
@@ -53,12 +53,7 @@ class HackerNewsReader():
             inputAsJSON += "\"" + str(counter) + "\":" + itemAsJson
             counter += 1
         
-        inputAsJSON += "}}"
-        if(data != ""):
-            for item in data:
-                logger.debug(item + "\":" + json.dumps(data[item]))
-                inputAsJSON += ',\"' + item + "\":" + json.dumps(data[item])
-        inputAsJSON += "}"
+        inputAsJSON += "}}}"
         logger.debug(inputAsJSON)
         try:
             response = requests.post(OPA_TAGS.OPA_URL, inputAsJSON)
@@ -67,7 +62,7 @@ class HackerNewsReader():
             return "Can't access OPA. Is it up?"
         if(response.status_code == 200):
             logger.debug("completed" + str(response.json()))
-            return response.json()
+            return response.json()[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE]
         else:
             logger.debug("error querying OPA!")
             return "error querying OPA!"
@@ -78,10 +73,8 @@ class HackerNewsReader():
         filtered_articles = self.queryOPA(input, "")
         
         logger.debug("Completed filtering")
-        if OPA_TAGS.OPA_RESULT in filtered_articles:
-            if OPA_TAGS.REGO_NAMESPACE in filtered_articles[OPA_TAGS.OPA_RESULT]:
-                if OPA_TAGS.OPA_POPULAR_ARTICLES in filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE]:
-                    return filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE][OPA_TAGS.OPA_POPULAR_ARTICLES]
+        if OPA_TAGS.OPA_POPULAR_ARTICLES in filtered_articles:
+            return filtered_articles[OPA_TAGS.OPA_POPULAR_ARTICLES]
         return filtered_articles
 
     def filterArticlesTopics(self, input, topic):
@@ -94,13 +87,10 @@ class HackerNewsReader():
         
         logger.debug("Completed filtering")
         topic_tag = "relevant_to_" + topic
-        if OPA_TAGS.OPA_RESULT in filtered_articles:
-            if OPA_TAGS.REGO_NAMESPACE in filtered_articles[OPA_TAGS.OPA_RESULT]:
-                if topic_tag in filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE]:
-                    logger.debug("Found articles on " + topic)
-                    return filtered_articles[OPA_TAGS.OPA_RESULT][OPA_TAGS.REGO_NAMESPACE][topic_tag]
-                else:
-                    no_results = "I didn't get articles on " + topic + ". Available topics: " + str(topics.list()).lower()
-                    logger.debug(no_results)
-                    return filtered_articles
-        return filtered_articles
+        if topic_tag in filtered_articles:
+            logger.debug("Found articles on " + topic)
+            return filtered_articles[topic_tag]
+        else:
+            no_results = "I didn't get articles on " + topic + ". Available topics: " + str(topics.list()).lower()
+            logger.debug(no_results)
+            return ""
