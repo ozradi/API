@@ -9,45 +9,46 @@ HACKER_NEWS_URL = "https://hacker-news.firebaseio.com/v0/topstories.json?print=p
 ARTICLES_PREFIX = "articles"
 HACKER_NEWS_ARTICLE_URL = "https://hacker-news.firebaseio.com/v0/item/XXX.json?print=pretty"
 HACKER_NEWS_ARTICLE_PLACEHOLDER = "XXX"
+
 class HackerNewsReader():
-    
-    def getArticle(self, item):
-        logger.debug("Start getting article: " + str(item))
-        currentItemId = currentItemBy = currentItemScore = currentItemTitle = currentItemTime = currentItemType = currentItemURL = ""
-        url = HACKER_NEWS_ARTICLE_URL.replace(HACKER_NEWS_ARTICLE_PLACEHOLDER, str(item))
-        current = requests.get(url)
-        currentAsJSON = json.loads(current.text)
-        currentItemId = currentAsJSON[Article.HACKERNEWS_ID] if Article.HACKERNEWS_ID in currentAsJSON else 0
-        currentItemBy = currentAsJSON[Article.HACKERNEWS_BY] if Article.HACKERNEWS_BY in currentAsJSON else "Unknown"
-        currentItemScore = currentAsJSON[Article.HACKERNEWS_SCORE] if Article.HACKERNEWS_SCORE in currentAsJSON else 0
-        currentItemTitle = currentAsJSON[Article.HACKERNEWS_TITLE] if Article.HACKERNEWS_TITLE in currentAsJSON else ""
-        currentItemTime = currentAsJSON[Article.HACKERNEWS_TIME] if Article.HACKERNEWS_TIME in currentAsJSON else ""
-        currentItemType = currentAsJSON[Article.HACKERNEWS_TYPE] if Article.HACKERNEWS_TYPE in currentAsJSON else ""
-        currentItemURL = currentAsJSON[Article.HACKERNEWS_URL] if Article.HACKERNEWS_URL in currentAsJSON else "N/A"
-        return Article(currentItemId, currentItemBy,currentItemScore,currentItemTitle,currentItemTime,currentItemType,currentItemURL)
 
     def getArticles(self, maxArticles):
+        currentItemId = currentItemBy = currentItemScore = currentItemTitle = currentItemTime = currentItemType = currentItemURL = ""
         logger.debug("Start getting articles")
-        stories_ids_list = requests.get(HACKER_NEWS_URL)
-        newstories = stories_ids_list.json()
-        articles = []
-        numOfStories = min(len(newstories), maxArticles)
-        logger.debug("Fetching " + str(numOfStories) + " articles. Iterating...")
+        session = requests.session()
+        articles_ids_list = session.get(HACKER_NEWS_URL)
+        logger.debug("Done")
+        newsArticlesAsJSON = articles_ids_list.json()
+        articlesFromHN = []
+        urls = []
+        numOfArticles = min(len(newsArticlesAsJSON), maxArticles)
+        logger.debug("Fetching " + str(numOfArticles) + " articles. Iterating...")
         articlesCounter = 1
-        for item in newstories:
-            articles.append(self.getArticle(item))
+        for articleId in newsArticlesAsJSON:
+            urls.append(HACKER_NEWS_ARTICLE_URL.replace(HACKER_NEWS_ARTICLE_PLACEHOLDER, str(articleId)))
             articlesCounter += 1
-            if articlesCounter-1 == numOfStories:
+            if articlesCounter-1 == numOfArticles:
                 break
-        logger.debug("ended getting articles")
+        logger.debug("getting articles actually")
+        results = [session.get(u).json() for u in urls]
+        logger.debug("got articles. Now creating objects")
+        for result in results:
+            logger.debug(result)
+            currentAsJSON = result
+            currentItemId = currentAsJSON[Article.HACKERNEWS_ID] if Article.HACKERNEWS_ID in currentAsJSON else 0
+            currentItemBy = currentAsJSON[Article.HACKERNEWS_BY] if Article.HACKERNEWS_BY in currentAsJSON else "Unknown"
+            currentItemScore = currentAsJSON[Article.HACKERNEWS_SCORE] if Article.HACKERNEWS_SCORE in currentAsJSON else 0
+            currentItemTitle = currentAsJSON[Article.HACKERNEWS_TITLE] if Article.HACKERNEWS_TITLE in currentAsJSON else ""
+            currentItemTime = currentAsJSON[Article.HACKERNEWS_TIME] if Article.HACKERNEWS_TIME in currentAsJSON else ""
+            currentItemType = currentAsJSON[Article.HACKERNEWS_TYPE] if Article.HACKERNEWS_TYPE in currentAsJSON else ""
+            currentItemURL = currentAsJSON[Article.HACKERNEWS_URL] if Article.HACKERNEWS_URL in currentAsJSON else "N/A"
+            articlesFromHN.append(Article(currentItemId, currentItemBy,currentItemScore,currentItemTitle,currentItemTime,currentItemType,currentItemURL))
 
-        logger.debug(articles)
-        
         # To return a new list, use the sorted() built-in function...
-        articles = sorted(articles, key=lambda x: x.score, reverse=True)
+        articlesFromHN = sorted(articlesFromHN, key=lambda x: x.score, reverse=True)
 
-        logger.debug(articles)
-        return articles
+        logger.debug(articlesFromHN)
+        return articlesFromHN
 
     def queryOPA(self, input, data):
         logger.debug("====Using the GET API to apply the policy on the data====")

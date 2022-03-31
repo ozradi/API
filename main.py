@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-
-from re import template
 from typing import Optional
 from fastapi import FastAPI, Request
 import json
