@@ -10,7 +10,7 @@
     <p>To see articles on a specific topic choose from the list:</p>
     <ul id="topics">
     {% for item in topics %}
-        <li><a href="/bytopic?topic={{ item.lower() }}">{{ item.lower() }}</a></li>
+        <li><a href="/bytopic?topic={{ item.lower() }}&count=10">{{ item.lower() }}</a></li>
     {% endfor %}
     </ul>
 </body>
