@@ -3,7 +3,7 @@ from enum import Enum
 class topics(Enum):
     BIOLOGY = 1
     CRYPTO = 2
-    SAPCE = 3
+    SPACE = 3
     FAANG = 4
     AUTHORIZATION = 5
 
