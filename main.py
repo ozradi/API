@@ -9,7 +9,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 DEBUG = 1
-MAX_STORIES = 10
+MAX_STORIES = 20
 JSON_PREFIX = "articles"
 TITLE =  "Filtered HN"
 app = FastAPI()
@@ -21,14 +21,15 @@ def read_root(request: Request):
     return templates.TemplateResponse("homepage.html", {"request": request, "topics": topics.list()})
 
 @app.get("/popular", response_class=HTMLResponse)
-def showNews(request: Request):
+def showNews(request: Request, count: Optional[int] = None):
     reader = HackerNewsReader()
     if DEBUG == 0:
     # for debug purposes, loading all stories from a mock, instead of from Hackernews
         with open('opa_files/mock_input.json') as json_file:
             all_articles = json.load(json_file)
     else:
-        all_articles = reader.getArticles(MAX_STORIES)
+        count = count if count is not None else MAX_STORIES
+        all_articles = reader.getArticles(count)
     
     logger.debug("Done fetching, now filtering based on OPA policy")
     filtered_articles = reader.filterArticlesPopularity(all_articles)
@@ -37,7 +38,7 @@ def showNews(request: Request):
     return generateHtml(request, filtered_articles, all_articles, "")
 
 @app.get("/bytopic", response_class=HTMLResponse)
-def showNewsByTopic(request: Request, topic: Optional[str] = None):
+def showNewsByTopic(request: Request, topic: Optional[str] = None, count: Optional[int] = None):
     reader = HackerNewsReader()
 
     if DEBUG == 0:
@@ -45,7 +46,8 @@ def showNewsByTopic(request: Request, topic: Optional[str] = None):
         with open('opa_files/mock_input.json') as json_file:
             all_articles = json.load(json_file)
     else:
-        all_articles = reader.getArticles(MAX_STORIES)
+        count = count if count is not None else MAX_STORIES
+        all_articles = reader.getArticles(count)
     
     logger.debug("Done fetching, now filtering based on OPA policy")
     filtered_article_ids = reader.filterArticlesTopics(all_articles, topic)
