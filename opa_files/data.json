@@ -44,6 +44,16 @@
         "oso",
         "casbin",
         "iam",
-        "access token"
+        "access token", 
+        "rbac",
+        "role based access control",
+        "abac",
+        "rebac",
+        "authzed",
+        "spicedb",
+        "cerbos",
+        "permify",
+        "warrant",
+        "vista"
     ]
 }
